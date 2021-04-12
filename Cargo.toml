@@ -1,0 +1,24 @@
+[package]
+name = "verlet_rs"
+version = "0.1.0"
+description = "Verlet physics engine in rust"
+authors = ["Deepankar Agrawal <deepankar11093@gmail.com>"]
+license = "Apache-2.0"
+readme = "README.md"
+categories = ["graphics", "rendering", "game-development"]
+keywords = ["verlet", "physics", "2d", "graphics", "engine"]
+homepage = "https://github.com/deep110/verlet.rs"
+repository = "https://github.com/deep110/verlet.rs"
+documentation = "https://docs.rs/verlet_rs"
+edition = "2018"
+exclude = [
+    "examples/*",
+]
+
+[dependencies]
+cgmath = "0.18.0"
+
+[dev-dependencies]
+pixels = "0.2.0"
+winit = "0.24.0"
+ada = "0.1.0"
