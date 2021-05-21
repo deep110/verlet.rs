@@ -11,11 +11,6 @@
 
 pub mod behaviors;
 
+mod physics2d;
 
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}
+pub use physics2d::VerletPhysics2D;
