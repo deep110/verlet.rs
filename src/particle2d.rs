@@ -3,8 +3,8 @@ use crate::vector2d::Vector2D;
 #[derive(Copy, Clone)]
 pub struct Particle2D {
     pub(crate) id: i32,
-    position: Vector2D,
-    velocity: Vector2D,
+    pub(crate) position: Vector2D,
+    last_position: Vector2D,
     weight: f32,
     inv_weight: f32,
 }
@@ -44,7 +44,7 @@ impl Default for Particle2D {
         Particle2D {
             id: 0,
             position: Vector2D::default(),
-            velocity: Vector2D::default(),
+            last_position: Vector2D::default(),
             weight: 1f32,
             inv_weight: 1f32,
         }

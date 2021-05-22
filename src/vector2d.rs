@@ -26,6 +26,12 @@ impl Vector2D {
     }
 
     #[inline]
+    pub fn set_v(&mut self, v: &Vector2D) {
+        self.x = v.x;
+        self.y = v.y;
+    }
+
+    #[inline]
     pub fn length(&self) -> f32 {
         self.length_sq().sqrt()
     }

@@ -57,7 +57,8 @@ impl VerletPhysics2D {
         &self.particles
     }
 
-    pub fn add_behavior(&mut self, b: Box<dyn ParticleBehaviour2D>) {
+    pub fn add_behavior(&mut self, mut b: Box<dyn ParticleBehaviour2D>) {
+        b.configure(self.timestep);
         self.behaviors.push(b);
     }
 

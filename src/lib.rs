@@ -10,12 +10,15 @@
 #![forbid(unsafe_code)]
 
 pub mod behaviors;
-mod constraints;
+pub mod constraints;
+
+pub(crate) use behaviors::ParticleBehaviour2D;
+pub(crate) use constraints::ParticleConstraint2D;
+
 mod particle2d;
 mod physics2d;
 mod vector2d;
 
-pub(crate) use behaviors::ParticleBehaviour2D;
 
 pub use particle2d::Particle2D;
 pub use physics2d::VerletPhysics2D;
