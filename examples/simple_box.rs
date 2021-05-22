@@ -1,14 +1,20 @@
+extern crate verlet_rs;
+
 use pixels::{Error, Pixels, SurfaceTexture};
 use winit::dpi::LogicalSize;
-use winit::event::{Event, WindowEvent};
+use winit::event::{Event, VirtualKeyCode};
 use winit::event_loop::{ControlFlow, EventLoop};
 use winit::window::WindowBuilder;
+use winit_input_helper::WinitInputHelper;
+
+use verlet_rs::VerletPhysics2D;
 
 const WIDTH: u32 = 512;
 const HEIGHT: u32 = 512;
 
 pub fn main() -> Result<(), Error> {
     let event_loop = EventLoop::new();
+    let mut input = WinitInputHelper::new();
     let window = {
         let size = LogicalSize::new(WIDTH as f64, HEIGHT as f64);
         WindowBuilder::new()
@@ -27,41 +33,36 @@ pub fn main() -> Result<(), Error> {
     };
 
     // initialize verlet engine
+    let mut verlet_engine = VerletPhysics2D::new();
 
     event_loop.run(move |event, _, control_flow| {
-        *control_flow = ControlFlow::Wait;
+        if let Event::RedrawRequested(_) = event {
+            if pixels
+                .render()
+                .map_err(|e| println!("pixels.render() failed: {}", e))
+                .is_err()
+            {
+                *control_flow = ControlFlow::Exit;
+                return;
+            }
+        }
 
-        match event {
-            Event::WindowEvent {
-                event: WindowEvent::CloseRequested,
-                window_id,
-            } if window_id == window.id() => *control_flow = ControlFlow::Exit,
+        // Handle input events
+        if input.update(&event) {
+            // Close events
+            if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
+                *control_flow = ControlFlow::Exit;
+                return;
+            }
 
-            Event::WindowEvent {
-                event: WindowEvent::Resized(size),
-                window_id: _,
-            } => {
+            // Resize the window
+            if let Some(size) = input.window_resized() {
                 pixels.resize_surface(size.width, size.height);
             }
 
-            Event::MainEventsCleared => {
-                window.request_redraw();
-            }
-
-            Event::RedrawRequested(_) => {
-                // redraw
-
-                if pixels
-                    .render()
-                    .map_err(|e| println!("pixels.render() failed: {}", e))
-                    .is_err()
-                {
-                    *control_flow = ControlFlow::Exit;
-                    return;
-                }
-            }
-
-            _ => (),
+            // Update internal state and request a redraw
+            verlet_engine.update();
+            window.request_redraw();
         }
     });
 }
