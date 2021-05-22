@@ -5,18 +5,18 @@ use std::ops::{Add, Div, Mul, Sub};
 /// This type is marked as `#[repr(C)]`.
 #[repr(C)]
 #[derive(PartialEq, Copy, Clone)]
-pub struct Vec2D {
+pub struct Vector2D {
     /// The x component of the vector.
     pub x: f32,
     /// The y component of the vector.
     pub y: f32,
 }
 
-impl Vec2D {
+impl Vector2D {
     /// Construct a new 2d vector, using the provided values.
     #[inline]
-    pub fn new(x: f32, y: f32) -> Vec2D {
-        Vec2D { x, y }
+    pub fn new(x: f32, y: f32) -> Vector2D {
+        Vector2D { x, y }
     }
 
     #[inline]
@@ -36,23 +36,23 @@ impl Vec2D {
     }
 
     #[inline]
-    pub fn dot(&self, v: Vec2D) -> f32 {
+    pub fn dot(&self, v: Vector2D) -> f32 {
         self.x * v.x + self.y * v.y
     }
 
     #[inline]
     pub fn zero() -> Self {
-        Vec2D::new(0.0, 0.0)
+        Vector2D::new(0.0, 0.0)
     }
 }
 
-impl Default for Vec2D {
+impl Default for Vector2D {
     fn default() -> Self {
-        Vec2D::new(0.0, 0.0)
+        Vector2D::new(0.0, 0.0)
     }
 }
 
-impl Add for Vec2D {
+impl Add for Vector2D {
     type Output = Self;
 
     fn add(self, other: Self) -> Self {
@@ -63,7 +63,7 @@ impl Add for Vec2D {
     }
 }
 
-impl Sub for Vec2D {
+impl Sub for Vector2D {
     type Output = Self;
 
     fn sub(self, other: Self) -> Self {
@@ -74,7 +74,7 @@ impl Sub for Vec2D {
     }
 }
 
-impl Mul for Vec2D {
+impl Mul for Vector2D {
     type Output = Self;
 
     fn mul(self, other: Self) -> Self {
@@ -85,7 +85,18 @@ impl Mul for Vec2D {
     }
 }
 
-impl Div for Vec2D {
+impl Mul<f32> for Vector2D {
+    type Output = Self;
+
+    fn mul(self, s: f32) -> Self {
+        Self {
+            x: self.x * s,
+            y: self.y * s,
+        }
+    }
+}
+
+impl Div for Vector2D {
     type Output = Self;
 
     fn div(self, other: Self) -> Self {

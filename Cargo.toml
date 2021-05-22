@@ -21,4 +21,4 @@ exclude = [
 pixels = "0.3.0"
 winit = "0.24.0"
 winit_input_helper = "0.9"
-ada = "0.2.0"
+ada = "0.3.0"
