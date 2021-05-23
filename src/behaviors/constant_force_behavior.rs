@@ -12,7 +12,7 @@ impl ConstantForceBehavior2D {
     pub fn new(force_x: f32, force_y: f32) -> Box<dyn ParticleBehaviour2D> {
         Box::new(ConstantForceBehavior2D {
             force: Vector2D::new(force_x, force_y),
-            timestep: 0.0,
+            timestep: 1.0,
             scaled_force: Vector2D::default(),
         })
     }

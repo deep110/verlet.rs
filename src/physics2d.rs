@@ -1,8 +1,9 @@
 use crate::behaviors::ConstantForceBehavior2D;
-use crate::{Particle2D, ParticleBehaviour2D};
+use crate::{Particle2D, ParticleBehaviour2D, Spring2D};
 
 pub struct VerletPhysics2D {
     particles: Vec<Particle2D>,
+    springs: Vec<Spring2D>,
     behaviors: Vec<Box<dyn ParticleBehaviour2D>>,
     particle_id_counter: i32,
     timestep: f32,
@@ -33,6 +34,7 @@ impl VerletPhysics2D {
             num_iterations,
             drag,
             particles: Vec::new(),
+            springs: Vec::new(),
             behaviors,
             particle_id_counter: 0,
         }
@@ -62,16 +64,21 @@ impl VerletPhysics2D {
         self.behaviors.push(b);
     }
 
-    pub fn update(&mut self) {}
-
     pub fn clear(&mut self) {
         self.particles.clear();
         self.behaviors.clear();
+        self.springs.clear();
     }
 
     pub fn set_drag(&mut self, drag: f32) {
         self.drag = drag;
     }
+
+    /// run the engine for a single step
+    pub fn update(&mut self) {
+        
+    }
+
 }
 
 #[cfg(test)]

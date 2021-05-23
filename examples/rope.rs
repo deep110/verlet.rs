@@ -37,7 +37,7 @@ pub fn main() -> Result<(), Error> {
     // initialize verlet engine
     let mut verlet_engine = VerletPhysics2D::new();
     // add behavior for gravity
-    let gravity = behaviors::ConstantForceBehavior2D::new(0.0, 10.0);
+    let gravity = behaviors::ConstantForceBehavior2D::new(0.0, 1.0);
     verlet_engine.add_behavior(gravity);
     // add rope object
     init_rope(&mut verlet_engine);

@@ -1,4 +1,4 @@
-use std::ops::{Add, Div, Mul, Sub};
+use std::ops::{Add, AddAssign, Div, Mul, Sub, SubAssign};
 
 /// A 2-dimensional vector.
 ///
@@ -32,12 +32,12 @@ impl Vector2D {
     }
 
     #[inline]
-    pub fn length(&self) -> f32 {
-        self.length_sq().sqrt()
+    pub fn magnitude(&self) -> f32 {
+        self.magnitude_sq().sqrt()
     }
 
     #[inline]
-    pub fn length_sq(&self) -> f32 {
+    pub fn magnitude_sq(&self) -> f32 {
         self.x * self.x + self.y + self.y
     }
 
@@ -69,6 +69,13 @@ impl Add for Vector2D {
     }
 }
 
+impl AddAssign for Vector2D {
+    fn add_assign(&mut self, other: Self) {
+        self.x += other.x;
+        self.y += other.y;
+    }
+}
+
 impl Sub for Vector2D {
     type Output = Self;
 
@@ -77,6 +84,13 @@ impl Sub for Vector2D {
             x: self.x - other.x,
             y: self.y - other.y,
         }
+    }
+}
+
+impl SubAssign for Vector2D {
+    fn sub_assign(&mut self, other: Self) {
+        self.x -= other.x;
+        self.y -= other.y;
     }
 }
 

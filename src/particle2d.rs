@@ -6,7 +6,7 @@ pub struct Particle2D {
     pub(crate) position: Vector2D,
     last_position: Vector2D,
     weight: f32,
-    inv_weight: f32,
+    pub(crate) inv_weight: f32,
 }
 
 impl Particle2D {
