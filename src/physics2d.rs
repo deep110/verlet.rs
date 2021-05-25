@@ -40,10 +40,17 @@ impl VerletPhysics2D {
         }
     }
 
-    pub fn add_particle(&mut self, mut p: Particle2D) {
+    pub fn set_drag(&mut self, drag: f32) {
+        self.drag = drag;
+    }
+
+    // handle particle functions
+
+    pub fn add_particle(&mut self, mut p: Particle2D) -> i32 {
         self.particle_id_counter += 1;
         p.id = self.particle_id_counter;
         self.particles.push(p);
+        return p.id;
     }
 
     pub fn remove_particle(&mut self, p: &Particle2D) {
@@ -59,9 +66,57 @@ impl VerletPhysics2D {
         &self.particles
     }
 
+    #[inline(always)]
+    pub(crate) fn update_particles(&mut self) {
+        for p in self.particles.iter_mut() {
+            // apply all behaviors to each particle
+            for b in self.behaviors.iter() {
+                b.apply(p);
+            }
+
+            // apply drag & friction
+
+            // update particle's internal forces, due to behaviors forces
+            // or other stuff
+        }
+    }
+
+    // handle behavior functions
+
     pub fn add_behavior(&mut self, mut b: Box<dyn ParticleBehaviour2D>) {
         b.configure(self.timestep);
         self.behaviors.push(b);
+    }
+
+    // handle spring functions
+
+    /// Add spring to physics engine
+    ///
+    /// Does not allow to add already added spring again. So at a time only
+    /// a single connection can exist between two unique particles
+    pub fn add_spring(&mut self, spring: Spring2D) {
+        match self.get_spring(spring.particle_a_id, spring.particle_b_id) {
+            None => self.springs.push(spring),
+            _ => (),
+        }
+    }
+
+    pub fn get_spring(&self, particle_a_id: i32, particle_b_id: i32) -> Option<&Spring2D> {
+        for s in self.springs.iter() {
+            if particle_a_id == s.particle_a_id && particle_b_id == s.particle_b_id {
+                return Some(s);
+            }
+        }
+        return None;
+    }
+
+    #[inline(always)]
+    pub(crate) fn update_springs(&mut self) {}
+
+    /// run the engine for a single step
+    pub fn update(&mut self) {
+        self.update_particles();
+        self.update_springs();
     }
 
     pub fn clear(&mut self) {
@@ -69,16 +124,6 @@ impl VerletPhysics2D {
         self.behaviors.clear();
         self.springs.clear();
     }
-
-    pub fn set_drag(&mut self, drag: f32) {
-        self.drag = drag;
-    }
-
-    /// run the engine for a single step
-    pub fn update(&mut self) {
-        
-    }
-
 }
 
 #[cfg(test)]
