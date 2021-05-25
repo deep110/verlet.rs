@@ -42,6 +42,12 @@ impl Vector2D {
     }
 
     #[inline]
+    pub fn clear(&mut self) {
+        self.x = 0.;
+        self.y = 0.;
+    }
+
+    #[inline]
     pub fn dot(&self, v: Vector2D) -> f32 {
         self.x * v.x + self.y * v.y
     }

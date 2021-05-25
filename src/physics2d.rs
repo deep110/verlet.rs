@@ -74,10 +74,10 @@ impl VerletPhysics2D {
                 b.apply(p);
             }
 
-            // apply drag & friction
-
-            // update particle's internal forces, due to behaviors forces
-            // or other stuff
+            // update particle's position due to external forces like
+            // - behaviors
+            // - drag
+            p.update(self.drag);
         }
     }
 
