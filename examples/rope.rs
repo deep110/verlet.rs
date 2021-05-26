@@ -1,18 +1,17 @@
 extern crate verlet_rs;
 
+use ada::{shape, Canvas};
 use pixels::{Error, Pixels, SurfaceTexture};
 use winit::dpi::LogicalSize;
 use winit::event::{Event, VirtualKeyCode};
 use winit::event_loop::{ControlFlow, EventLoop};
 use winit::window::WindowBuilder;
 use winit_input_helper::WinitInputHelper;
-use ada::{shape, Canvas};
 
-use verlet_rs::{VerletPhysics2D, Particle2D, behaviors};
+use verlet_rs::{behaviors, Particle2D, VerletPhysics2D};
 
 const WIDTH: u32 = 512;
 const HEIGHT: u32 = 512;
-
 
 pub fn main() -> Result<(), Error> {
     let event_loop = EventLoop::new();
@@ -87,14 +86,13 @@ fn init_rope(verlet_phy: &mut VerletPhysics2D) {
     }
 }
 
-fn draw_rope(verlet_phy: &mut VerletPhysics2D, canvas : &mut Canvas, buffer: &mut [u8]) {
+fn draw_rope(verlet_phy: &mut VerletPhysics2D, canvas: &mut Canvas, buffer: &mut [u8]) {
     canvas.clear(&ada::color::BLACK, buffer);
     let white = &ada::color::WHITE;
 
     let particles = verlet_phy.get_particles();
 
-    for i in 0..particles.len() {
-        let particle = particles[i];
+    for particle in particles.iter() {
         let pp = particle.get_position();
 
         shape::draw_ellipse2d_filled(pp.x as i32, pp.y as i32, 6, 6, canvas, white, buffer);

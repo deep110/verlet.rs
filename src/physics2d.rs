@@ -1,10 +1,11 @@
 use crate::behaviors::ConstantForceBehavior2D;
-use crate::{Particle2D, ParticleBehaviour2D, Spring2D};
+use crate::{Particle2D, ParticleBehaviour2D, Spring2D, ParticleConstraint2D};
 
 pub struct VerletPhysics2D {
     particles: Vec<Particle2D>,
     springs: Vec<Spring2D>,
     behaviors: Vec<Box<dyn ParticleBehaviour2D>>,
+    constraints: Vec<Box<dyn ParticleConstraint2D>>,
     particle_id_counter: i32,
     timestep: f32,
     num_iterations: i32,
@@ -35,6 +36,7 @@ impl VerletPhysics2D {
             drag,
             particles: Vec::new(),
             springs: Vec::new(),
+            constraints: Vec::new(),
             behaviors,
             particle_id_counter: 0,
         }
@@ -49,15 +51,19 @@ impl VerletPhysics2D {
     pub fn add_particle(&mut self, mut p: Particle2D) -> i32 {
         self.particle_id_counter += 1;
         p.id = self.particle_id_counter;
+        p.index = self.particles.len();
         self.particles.push(p);
-        return p.id;
+        return self.particle_id_counter;
     }
 
-    pub fn remove_particle(&mut self, p: &Particle2D) {
-        let r_id = p.id;
+    pub fn remove_particle(&mut self, particle_id: i32) {
         for i in 0..self.particles.len() {
-            if self.particles[i].id == r_id {
+            if self.particles[i].id == particle_id {
                 self.particles.swap_remove(i);
+                if i < self.particles.len() {
+                    self.particles[i].index = i;
+                }
+                break;
             }
         }
     }
@@ -112,6 +118,11 @@ impl VerletPhysics2D {
 
     #[inline(always)]
     pub(crate) fn update_springs(&mut self) {}
+
+    // handle constraints
+    pub fn add_constraint(&mut self, c: Box<dyn ParticleConstraint2D>) {
+        self.constraints.push(c);
+    }
 
     /// run the engine for a single step
     pub fn update(&mut self) {

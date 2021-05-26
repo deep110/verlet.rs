@@ -1,10 +1,10 @@
 use crate::vector2d::Vector2D;
 
-#[derive(Copy, Clone)]
 pub struct Particle2D {
     pub(crate) id: i32,
+    pub (crate) index: usize,
     pub(crate) position: Vector2D,
-    last_position: Vector2D,
+    pub(crate) last_position: Vector2D,
     force: Vector2D,
     weight: f32,
     pub(crate) inv_weight: f32,
@@ -31,8 +31,13 @@ impl Particle2D {
     }
 
     #[inline]
-    pub fn get_position(&self) -> &Vector2D {
-        &self.position
+    pub fn get_position(&self) -> Vector2D {
+        self.position.clone()
+    }
+
+    #[inline]
+    pub fn get_id(&self) -> i32 {
+        self.id
     }
 
     pub fn get_weight(&self) -> f32 {
@@ -60,7 +65,8 @@ impl Particle2D {
 impl Default for Particle2D {
     fn default() -> Self {
         Particle2D {
-            id: 0,
+            id: -1,
+            index: 0,
             position: Vector2D::default(),
             last_position: Vector2D::default(),
             force: Vector2D::zero(),
