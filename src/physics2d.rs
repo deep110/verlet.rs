@@ -103,15 +103,24 @@ impl VerletPhysics2D {
     /// Does not allow to add already added spring again. So at a time only
     /// a single connection can exist between two unique particles
     pub fn add_spring(&mut self, spring: Spring2D) {
-        match self.get_spring(spring.particle_a_id, spring.particle_b_id) {
+        match self.get_spring(spring.get_particle_a_id(), spring.get_particle_b_id()) {
             None => self.springs.push(spring),
             _ => (),
         }
     }
 
+    pub fn add_springs(&mut self, mut springs: Vec<Spring2D>) {
+        for _ in 0..springs.len() {
+            match springs.pop() {
+                Some(s) => self.add_spring(s),
+                None => (),
+            }
+        }
+    }
+
     pub fn get_spring(&self, particle_a_id: i32, particle_b_id: i32) -> Option<&Spring2D> {
         for s in self.springs.iter() {
-            if particle_a_id == s.particle_a_id && particle_b_id == s.particle_b_id {
+            if particle_a_id == s.get_particle_a_id() && particle_b_id == s.get_particle_b_id() {
                 return Some(s);
             }
         }
@@ -119,7 +128,13 @@ impl VerletPhysics2D {
     }
 
     #[inline(always)]
-    pub(crate) fn update_springs(&mut self) {}
+    pub(crate) fn update_springs(&mut self) {
+        for _ in 0..self.num_iterations {
+            for s in self.springs.iter_mut() {
+                s.update();
+            }
+        }
+    }
 
     // handle constraints
     pub fn add_constraint(&mut self, c: Box<dyn ParticleConstraint2D>) {
