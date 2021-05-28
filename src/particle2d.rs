@@ -1,8 +1,9 @@
+use std::cell::RefCell;
+use std::rc::Rc;
 use crate::vector2d::Vector2D;
 
 pub struct Particle2D {
     pub(crate) id: i32,
-    pub (crate) index: usize,
     pub(crate) position: Vector2D,
     pub(crate) last_position: Vector2D,
     force: Vector2D,
@@ -12,12 +13,12 @@ pub struct Particle2D {
 
 impl Particle2D {
     #[inline]
-    pub fn new(x: f32, y: f32) -> Self {
+    pub fn new(x: f32, y: f32) -> Rc<RefCell<Particle2D>> {
         let mut p = Particle2D::default();
         p.position.set(x, y);
         p.last_position.set(x, y);
 
-        return p;
+        return Rc::new(RefCell::new(p));
     }
 
     #[inline]
@@ -66,7 +67,6 @@ impl Default for Particle2D {
     fn default() -> Self {
         Particle2D {
             id: -1,
-            index: 0,
             position: Vector2D::default(),
             last_position: Vector2D::default(),
             force: Vector2D::zero(),

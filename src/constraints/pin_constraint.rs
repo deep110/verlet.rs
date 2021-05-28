@@ -1,22 +1,27 @@
 use super::ParticleConstraint2D;
 use crate::{Particle2D, Vector2D};
+use std::cell::RefCell;
+use std::rc::Rc;
 
-#[derive(Copy, Clone)]
+#[derive(Clone)]
 pub struct PinConstraint2D {
     position: Vector2D,
+    particle: Rc<RefCell<Particle2D>>,
 }
 
 impl PinConstraint2D {
-    pub fn new(particle: &Particle2D) -> Box<dyn ParticleConstraint2D> {
+    pub fn new(particle: &Rc<RefCell<Particle2D>>) -> Box<dyn ParticleConstraint2D> {
         Box::new(PinConstraint2D {
-            position: particle.position.clone(),
+            position: particle.borrow().position.clone(),
+            particle: Rc::clone(particle),
         })
     }
 }
 
 impl ParticleConstraint2D for PinConstraint2D {
-    fn apply(&self, p: &mut Particle2D) {
-        p.position.set_v(&self.position);
-        p.last_position.set_v(&self.position);
+    fn apply(&mut self) {
+        let mut mut_p = self.particle.borrow_mut();
+        mut_p.position.set_v(&self.position);
+        mut_p.last_position.set_v(&self.position);
     }
 }

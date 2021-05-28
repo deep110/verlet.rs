@@ -1,8 +1,10 @@
 use crate::behaviors::ConstantForceBehavior2D;
-use crate::{Particle2D, ParticleBehaviour2D, Spring2D, ParticleConstraint2D};
+use crate::{Particle2D, ParticleBehaviour2D, ParticleConstraint2D, Spring2D};
+use std::cell::RefCell;
+use std::rc::Rc;
 
 pub struct VerletPhysics2D {
-    particles: Vec<Particle2D>,
+    particles: Vec<Rc<RefCell<Particle2D>>>,
     springs: Vec<Spring2D>,
     behaviors: Vec<Box<dyn ParticleBehaviour2D>>,
     constraints: Vec<Box<dyn ParticleConstraint2D>>,
@@ -48,42 +50,42 @@ impl VerletPhysics2D {
 
     // handle particle functions
 
-    pub fn add_particle(&mut self, mut p: Particle2D) -> i32 {
+    pub fn add_particle(&mut self, p: Rc<RefCell<Particle2D>>) -> i32 {
         self.particle_id_counter += 1;
-        p.id = self.particle_id_counter;
-        p.index = self.particles.len();
+        {
+            let mut mut_p = p.borrow_mut();
+            mut_p.id = self.particle_id_counter;
+        }
         self.particles.push(p);
         return self.particle_id_counter;
     }
 
     pub fn remove_particle(&mut self, particle_id: i32) {
         for i in 0..self.particles.len() {
-            if self.particles[i].id == particle_id {
+            if self.particles[i].borrow().id == particle_id {
                 self.particles.swap_remove(i);
-                if i < self.particles.len() {
-                    self.particles[i].index = i;
-                }
                 break;
             }
         }
     }
 
-    pub fn get_particles(&self) -> &Vec<Particle2D> {
+    pub fn get_particles(&self) -> &Vec<Rc<RefCell<Particle2D>>> {
         &self.particles
     }
 
     #[inline(always)]
     pub(crate) fn update_particles(&mut self) {
         for p in self.particles.iter_mut() {
+            let mut mut_p = p.borrow_mut();
             // apply all behaviors to each particle
             for b in self.behaviors.iter() {
-                b.apply(p);
+                b.apply(&mut *mut_p);
             }
 
             // update particle's position due to external forces like
             // - behaviors
             // - drag
-            p.update(self.drag);
+            mut_p.update(self.drag);
         }
     }
 
@@ -124,10 +126,18 @@ impl VerletPhysics2D {
         self.constraints.push(c);
     }
 
+    #[inline(always)]
+    pub(crate) fn apply_constraints(&mut self) {
+        for c in self.constraints.iter_mut() {
+            c.apply();
+        }
+    }
+
     /// run the engine for a single step
     pub fn update(&mut self) {
         self.update_particles();
         self.update_springs();
+        self.apply_constraints();
     }
 
     pub fn clear(&mut self) {

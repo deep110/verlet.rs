@@ -8,7 +8,7 @@ use winit::event_loop::{ControlFlow, EventLoop};
 use winit::window::WindowBuilder;
 use winit_input_helper::WinitInputHelper;
 
-use verlet_rs::{behaviors, Particle2D, VerletPhysics2D};
+use verlet_rs::{behaviors, constraints, Particle2D, VerletPhysics2D};
 
 const WIDTH: u32 = 512;
 const HEIGHT: u32 = 512;
@@ -82,6 +82,10 @@ fn init_rope(verlet_phy: &mut VerletPhysics2D) {
 
     for i in 0..10 {
         let p = Particle2D::new(100. + i as f32 * gap, 10.);
+        if i == 0 {
+            let pin_c = constraints::PinConstraint2D::new(&p);
+            verlet_phy.add_constraint(pin_c);
+        }
         verlet_phy.add_particle(p);
     }
 }
@@ -93,7 +97,7 @@ fn draw_rope(verlet_phy: &mut VerletPhysics2D, canvas: &mut Canvas, buffer: &mut
     let particles = verlet_phy.get_particles();
 
     for particle in particles.iter() {
-        let pp = particle.get_position();
+        let pp = particle.borrow().get_position();
 
         shape::draw_ellipse2d_filled(pp.x as i32, pp.y as i32, 6, 6, canvas, white, buffer);
     }
