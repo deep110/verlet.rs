@@ -1,5 +1,3 @@
-extern crate verlet_rs;
-
 use ada::{shape, Canvas};
 use pixels::{Error, Pixels, SurfaceTexture};
 use winit::dpi::LogicalSize;
@@ -8,7 +6,7 @@ use winit::event_loop::{ControlFlow, EventLoop};
 use winit::window::WindowBuilder;
 use winit_input_helper::WinitInputHelper;
 
-use verlet_rs::{behaviors, constraints, Spring2D, VerletPhysics2D};
+use verlet_rs::{behaviors, constraints, Spring2D, VerletPhysics2D, VerletObject2D};
 
 const WIDTH: u32 = 512;
 const HEIGHT: u32 = 512;
@@ -81,33 +79,38 @@ fn init_rope(verlet_phy: &mut VerletPhysics2D) {
     let gap = 10.0;
     let num_particles = 10;
 
+    let mut rope = VerletObject2D::new("rope");
+
     for i in 0..num_particles {
-        let p = verlet_phy.create_particle(200. + i as f32 * gap, 10.);
+        let p = rope.create_particle(200. + i as f32 * gap, 10.);
         if i == 0 {
             let pin_c = constraints::PinConstraint2D::new(&p);
-            verlet_phy.add_constraint(pin_c);
+            rope.add_constraint(pin_c);
         }
     }
 
     // add spring connections
     let mut xs: Vec<Spring2D> = Vec::with_capacity(num_particles);
-    let particles = verlet_phy.get_particles();
+    let particles = rope.get_particles();
     for i in 1..particles.len() {
         let s = Spring2D::new(particles[i - 1], particles[i], gap, 1.);
         xs.push(s);
     }
-    verlet_phy.add_springs(xs);
+    rope.add_springs(xs);
+    verlet_phy.add_verlet_object(rope);
 }
 
 fn draw_rope(verlet_phy: &mut VerletPhysics2D, canvas: &mut Canvas, buffer: &mut [u8]) {
     canvas.clear(&ada::color::BLACK, buffer);
     let white = &ada::color::WHITE;
 
-    let particles = verlet_phy.get_particles();
+    for obj in verlet_phy.get_verlet_objects() {
+        let particles = obj.get_particles();
 
-    for particle in particles.iter() {
-        let pp = particle.get_position();
+        for particle in particles.iter() {
+            let pp = particle.get_position();
 
-        shape::draw_ellipse2d_filled(pp.x as i32, pp.y as i32, 6, 6, canvas, white, buffer);
+            shape::draw_ellipse2d_filled(pp.x as i32, pp.y as i32, 6, 6, canvas, white, buffer);
+        }
     }
 }
