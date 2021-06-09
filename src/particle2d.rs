@@ -1,13 +1,11 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-use crate::vector2d::Vector2D;
-
 use slotmap::new_key_type;
+
+use crate::vector2d::Vector2D;
 
 new_key_type! { pub struct ParticleKey; }
 
 pub struct Particle2D {
-    pub(crate) id: Option<ParticleKey>,
+    id: ParticleKey,
     pub(crate) position: Vector2D,
     pub(crate) last_position: Vector2D,
     force: Vector2D,
@@ -17,12 +15,15 @@ pub struct Particle2D {
 
 impl Particle2D {
     #[inline]
-    pub fn new(x: f32, y: f32) -> Rc<RefCell<Particle2D>> {
-        let mut p = Particle2D::default();
-        p.position.set(x, y);
-        p.last_position.set(x, y);
-
-        return Rc::new(RefCell::new(p));
+    pub(crate) fn new(id: ParticleKey, x: f32, y: f32) -> Particle2D {
+        Particle2D {
+            id,
+            position: Vector2D::new(x, y),
+            last_position: Vector2D::new(x, y),
+            force: Vector2D::zero(),
+            weight: 1f32,
+            inv_weight: 1f32,
+        }
     }
 
     #[inline]
@@ -36,13 +37,13 @@ impl Particle2D {
     }
 
     #[inline]
-    pub fn get_position(&self) -> Vector2D {
-        self.position.clone()
+    pub fn get_position(&self) -> &Vector2D {
+        &self.position
     }
 
     #[inline]
     pub fn get_id(&self) -> ParticleKey {
-        self.id.unwrap()
+        self.id
     }
 
     pub fn get_weight(&self) -> f32 {
@@ -64,18 +65,5 @@ impl Particle2D {
         self.last_position.set_v(&self.position);
         self.position.set_v(&(self.position + new_pos_delta));
         self.force.clear();
-    }
-}
-
-impl Default for Particle2D {
-    fn default() -> Self {
-        Particle2D {
-            id: None,
-            position: Vector2D::default(),
-            last_position: Vector2D::default(),
-            force: Vector2D::zero(),
-            weight: 1f32,
-            inv_weight: 1f32,
-        }
     }
 }

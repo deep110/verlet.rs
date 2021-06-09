@@ -1,12 +1,10 @@
 use crate::behaviors::ConstantForceBehavior2D;
 use crate::{Particle2D, ParticleBehaviour2D, ParticleConstraint2D, ParticleKey, Spring2D};
-use std::cell::RefCell;
-use std::rc::Rc;
 
 use slotmap::SlotMap;
 
 pub struct VerletPhysics2D {
-    particles: SlotMap<ParticleKey, Rc<RefCell<Particle2D>>>,
+    particles: SlotMap<ParticleKey, Particle2D>,
     springs: Vec<Spring2D>,
     behaviors: Vec<Box<dyn ParticleBehaviour2D>>,
     constraints: Vec<Box<dyn ParticleConstraint2D>>,
@@ -50,39 +48,32 @@ impl VerletPhysics2D {
 
     // handle particle functions
 
-    #[inline]
-    fn handle_key_insert(p: Rc<RefCell<Particle2D>>, id: ParticleKey) -> Rc<RefCell<Particle2D>> {
-        p.borrow_mut().id = Some(id);
-        return p;
-    }
-
-    pub fn add_particle(&mut self, p: Rc<RefCell<Particle2D>>) -> ParticleKey {
+    pub fn create_particle(&mut self, x: f32, y: f32) -> ParticleKey {
         return self
             .particles
-            .insert_with_key(|k| (VerletPhysics2D::handle_key_insert(p, k)));
+            .insert_with_key(|k| (Particle2D::new(k, x, y)));
     }
 
     pub fn remove_particle(&mut self, particle_id: ParticleKey) {
         self.particles.remove(particle_id);
     }
 
-    pub fn get_particles(&self) -> Vec<&Rc<RefCell<Particle2D>>> {
+    pub fn get_particles(&self) -> Vec<&Particle2D> {
         self.particles.values().collect()
     }
 
     #[inline(always)]
     pub(crate) fn update_particles(&mut self) {
         for p in self.particles.values_mut() {
-            let mut mut_p = p.borrow_mut();
             // apply all behaviors to each particle
             for b in self.behaviors.iter() {
-                b.apply(&mut *mut_p);
+                b.apply(p);
             }
 
             // update particle's position due to external forces like
             // - behaviors
             // - drag
-            mut_p.update(self.drag);
+            p.update(self.drag);
         }
     }
 
@@ -131,21 +122,33 @@ impl VerletPhysics2D {
     #[inline(always)]
     pub(crate) fn update_springs(&mut self) {
         for _ in 0..self.num_iterations {
-            for s in self.springs.iter_mut() {
-                s.update();
+            for s in self.springs.iter() {
+                let maybe_ab = self
+                    .particles
+                    .get_disjoint_mut([s.get_particle_a_id(), s.get_particle_b_id()]);
+                match maybe_ab {
+                    Some([a, b]) => {
+                        s.update(a, b);
+                    }
+                    None => (),
+                }
             }
         }
     }
 
     // handle constraints
-    pub fn add_constraint(&mut self, c: Box<dyn ParticleConstraint2D>) {
+    pub fn add_constraint(&mut self, mut c: Box<dyn ParticleConstraint2D>) {
+        let particle_id = c.get_particle_id();
+        c.init_internal(&self.particles[particle_id]);
+
         self.constraints.push(c);
     }
 
     #[inline(always)]
     pub(crate) fn apply_constraints(&mut self) {
         for c in self.constraints.iter_mut() {
-            c.apply();
+            let particle_id = c.get_particle_id();
+            c.apply(&mut self.particles[particle_id]);
         }
     }
 

@@ -1,10 +1,8 @@
 use crate::{Particle2D, ParticleKey};
-use std::cell::RefCell;
-use std::rc::Rc;
 
 pub struct Spring2D {
-    particle_a: Rc<RefCell<Particle2D>>,
-    particle_b: Rc<RefCell<Particle2D>>,
+    particle_a_id: ParticleKey,
+    particle_b_id: ParticleKey,
     rest_length: f32,
     rest_length_sq: f32,
     stiffness: f32,
@@ -12,14 +10,14 @@ pub struct Spring2D {
 
 impl Spring2D {
     pub fn new(
-        particle_a: &Rc<RefCell<Particle2D>>,
-        particle_b: &Rc<RefCell<Particle2D>>,
+        particle_a: &Particle2D,
+        particle_b: &Particle2D,
         rest_length: f32,
         stiffness: f32,
     ) -> Self {
         Spring2D {
-            particle_a: Rc::clone(particle_a),
-            particle_b: Rc::clone(particle_b),
+            particle_a_id: particle_a.get_id(),
+            particle_b_id: particle_b.get_id(),
             rest_length,
             rest_length_sq: rest_length * rest_length,
             stiffness,
@@ -37,18 +35,15 @@ impl Spring2D {
 
     #[inline(always)]
     pub fn get_particle_a_id(&self) -> ParticleKey {
-        self.particle_a.borrow().get_id()
+        self.particle_a_id
     }
 
     #[inline(always)]
     pub fn get_particle_b_id(&self) -> ParticleKey {
-        self.particle_b.borrow().get_id()
+        self.particle_b_id
     }
 
-    pub(crate) fn update(&mut self) {
-        let a = &mut *(self.particle_a.borrow_mut());
-        let b = &mut *(self.particle_b.borrow_mut());
-
+    pub(crate) fn update(&self, a: &mut Particle2D, b: &mut Particle2D) {
         let delta = b.position - a.position;
         let dist = delta.magnitude_sq();
 
