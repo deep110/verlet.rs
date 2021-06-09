@@ -1,4 +1,4 @@
-use crate::Particle2D;
+use crate::{Particle2D, ParticleKey};
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -36,13 +36,13 @@ impl Spring2D {
     }
 
     #[inline(always)]
-    pub fn get_particle_a_id(&self) -> i32 {
-        self.particle_a.borrow().id
+    pub fn get_particle_a_id(&self) -> ParticleKey {
+        self.particle_a.borrow().get_id()
     }
 
     #[inline(always)]
-    pub fn get_particle_b_id(&self) -> i32 {
-        self.particle_b.borrow().id
+    pub fn get_particle_b_id(&self) -> ParticleKey {
+        self.particle_b.borrow().get_id()
     }
 
     pub(crate) fn update(&mut self) {

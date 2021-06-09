@@ -2,8 +2,12 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use crate::vector2d::Vector2D;
 
+use slotmap::new_key_type;
+
+new_key_type! { pub struct ParticleKey; }
+
 pub struct Particle2D {
-    pub(crate) id: i32,
+    pub(crate) id: Option<ParticleKey>,
     pub(crate) position: Vector2D,
     pub(crate) last_position: Vector2D,
     force: Vector2D,
@@ -37,8 +41,8 @@ impl Particle2D {
     }
 
     #[inline]
-    pub fn get_id(&self) -> i32 {
-        self.id
+    pub fn get_id(&self) -> ParticleKey {
+        self.id.unwrap()
     }
 
     pub fn get_weight(&self) -> f32 {
@@ -66,7 +70,7 @@ impl Particle2D {
 impl Default for Particle2D {
     fn default() -> Self {
         Particle2D {
-            id: -1,
+            id: None,
             position: Vector2D::default(),
             last_position: Vector2D::default(),
             force: Vector2D::zero(),

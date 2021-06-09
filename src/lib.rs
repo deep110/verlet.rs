@@ -21,7 +21,7 @@ mod vector2d;
 mod spring;
 
 
-pub use particle2d::Particle2D;
+pub use particle2d::{Particle2D, ParticleKey};
 pub use physics2d::VerletPhysics2D;
 pub use vector2d::Vector2D;
 pub use spring::Spring2D;

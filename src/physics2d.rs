@@ -1,14 +1,15 @@
 use crate::behaviors::ConstantForceBehavior2D;
-use crate::{Particle2D, ParticleBehaviour2D, ParticleConstraint2D, Spring2D};
+use crate::{Particle2D, ParticleBehaviour2D, ParticleConstraint2D, ParticleKey, Spring2D};
 use std::cell::RefCell;
 use std::rc::Rc;
 
+use slotmap::SlotMap;
+
 pub struct VerletPhysics2D {
-    particles: Vec<Rc<RefCell<Particle2D>>>,
+    particles: SlotMap<ParticleKey, Rc<RefCell<Particle2D>>>,
     springs: Vec<Spring2D>,
     behaviors: Vec<Box<dyn ParticleBehaviour2D>>,
     constraints: Vec<Box<dyn ParticleConstraint2D>>,
-    particle_id_counter: i32,
     timestep: f32,
     num_iterations: i32,
     drag: f32,
@@ -36,11 +37,10 @@ impl VerletPhysics2D {
             timestep,
             num_iterations,
             drag,
-            particles: Vec::new(),
+            particles: SlotMap::with_key(),
             springs: Vec::new(),
             constraints: Vec::new(),
             behaviors,
-            particle_id_counter: 0,
         }
     }
 
@@ -50,32 +50,29 @@ impl VerletPhysics2D {
 
     // handle particle functions
 
-    pub fn add_particle(&mut self, p: Rc<RefCell<Particle2D>>) -> i32 {
-        self.particle_id_counter += 1;
-        {
-            let mut mut_p = p.borrow_mut();
-            mut_p.id = self.particle_id_counter;
-        }
-        self.particles.push(p);
-        return self.particle_id_counter;
+    #[inline]
+    fn handle_key_insert(p: Rc<RefCell<Particle2D>>, id: ParticleKey) -> Rc<RefCell<Particle2D>> {
+        p.borrow_mut().id = Some(id);
+        return p;
     }
 
-    pub fn remove_particle(&mut self, particle_id: i32) {
-        for i in 0..self.particles.len() {
-            if self.particles[i].borrow().id == particle_id {
-                self.particles.swap_remove(i);
-                break;
-            }
-        }
+    pub fn add_particle(&mut self, p: Rc<RefCell<Particle2D>>) -> ParticleKey {
+        return self
+            .particles
+            .insert_with_key(|k| (VerletPhysics2D::handle_key_insert(p, k)));
     }
 
-    pub fn get_particles(&self) -> &Vec<Rc<RefCell<Particle2D>>> {
-        &self.particles
+    pub fn remove_particle(&mut self, particle_id: ParticleKey) {
+        self.particles.remove(particle_id);
+    }
+
+    pub fn get_particles(&self) -> Vec<&Rc<RefCell<Particle2D>>> {
+        self.particles.values().collect()
     }
 
     #[inline(always)]
     pub(crate) fn update_particles(&mut self) {
-        for p in self.particles.iter_mut() {
+        for p in self.particles.values_mut() {
             let mut mut_p = p.borrow_mut();
             // apply all behaviors to each particle
             for b in self.behaviors.iter() {
@@ -118,7 +115,11 @@ impl VerletPhysics2D {
         }
     }
 
-    pub fn get_spring(&self, particle_a_id: i32, particle_b_id: i32) -> Option<&Spring2D> {
+    pub fn get_spring(
+        &self,
+        particle_a_id: ParticleKey,
+        particle_b_id: ParticleKey,
+    ) -> Option<&Spring2D> {
         for s in self.springs.iter() {
             if particle_a_id == s.get_particle_a_id() && particle_b_id == s.get_particle_b_id() {
                 return Some(s);
