@@ -1,3 +1,4 @@
+use core::fmt;
 use std::ops::{Add, AddAssign, Div, Mul, Sub, SubAssign};
 
 /// A 2-dimensional vector.
@@ -38,7 +39,7 @@ impl Vector2D {
 
     #[inline]
     pub fn magnitude_sq(&self) -> f32 {
-        self.x * self.x + self.y + self.y
+        self.x * self.x + self.y * self.y
     }
 
     #[inline]
@@ -61,6 +62,12 @@ impl Vector2D {
 impl Default for Vector2D {
     fn default() -> Self {
         Vector2D::new(0.0, 0.0)
+    }
+}
+
+impl fmt::Display for Vector2D {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{{x: {}, y: {}}}", self.x, self.y)
     }
 }
 
@@ -130,5 +137,31 @@ impl Div for Vector2D {
             x: self.x / other.x,
             y: self.y / other.y,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_vector2d_create_new() {
+        let v = Vector2D::new(1., 2.);
+        assert_eq!(v.x, 1.);
+        assert_eq!(v.y, 2.);
+    }
+
+    #[test]
+    fn test_vector2d_assign() {
+        let mut v = Vector2D::new(1., 2.);
+        v.set(3., 4.);
+        assert_eq!(v.x, 3.);
+        assert_eq!(v.y, 4.);
+    }
+
+    #[test]
+    fn test_vector2d_magnitude() {
+        let v = Vector2D::new(10., 15.);
+        assert_eq!(v.magnitude(), 18.027756);
     }
 }
