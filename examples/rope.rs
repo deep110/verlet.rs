@@ -6,7 +6,7 @@ use winit::event_loop::{ControlFlow, EventLoop};
 use winit::window::WindowBuilder;
 use winit_input_helper::WinitInputHelper;
 
-use verlet_rs::{behaviors, constraints, Spring2D, VerletPhysics2D, VerletObject2D};
+use verlet_rs::{behaviors, constraints, Spring2D, VerletObject2D, VerletPhysics2D};
 
 const WIDTH: u32 = 512;
 const HEIGHT: u32 = 512;
@@ -77,7 +77,7 @@ pub fn main() -> Result<(), Error> {
 
 fn init_rope(verlet_phy: &mut VerletPhysics2D) {
     let gap = 10.0;
-    let num_particles = 10;
+    let num_particles = 20;
 
     let mut rope = VerletObject2D::new("rope");
 
@@ -93,7 +93,7 @@ fn init_rope(verlet_phy: &mut VerletPhysics2D) {
     let mut xs: Vec<Spring2D> = Vec::with_capacity(num_particles);
     let particles = rope.get_particles();
     for i in 1..particles.len() {
-        let s = Spring2D::new(particles[i - 1], particles[i], gap, 1.);
+        let s = Spring2D::new(particles[i - 1], particles[i], 25., 0.5);
         xs.push(s);
     }
     rope.add_springs(xs);

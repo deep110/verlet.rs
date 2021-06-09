@@ -19,6 +19,10 @@ impl VerletObject2D {
         }
     }
 
+    pub fn get_tag(&self) -> &'static str {
+        self.tag
+    }
+
     // handle particle functions
 
     pub fn create_particle(&mut self, x: f32, y: f32) -> ParticleKey {
@@ -89,6 +93,10 @@ impl VerletObject2D {
         return None;
     }
 
+    pub fn get_springs(&self) -> &Vec<Spring2D> {
+        &self.springs
+    }
+
     #[inline(always)]
     pub(crate) fn update_springs(&mut self, num_iterations: u32) {
         for _ in 0..num_iterations {
@@ -130,6 +138,7 @@ impl VerletObject2D {
         behaviors: &Vec<Box<dyn ParticleBehaviour2D>>,
     ) {
         self.update_particles(drag, behaviors);
+        self.apply_constraints();
         self.update_springs(num_iterations);
         self.apply_constraints();
     }

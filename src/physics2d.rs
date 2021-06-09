@@ -12,9 +12,10 @@ pub struct VerletPhysics2D {
 impl VerletPhysics2D {
     /// Initializes a Verlet physics engine instance
     pub fn new() -> VerletPhysics2D {
-        VerletPhysics2D::new_with(1.0, 50, 0.0, None)
+        VerletPhysics2D::new_with(1.0, 50, 0.01, None)
     }
 
+    /// Initializes a Verlet physics engine instance
     pub fn new_with(
         timestep: f32,
         num_iterations: u32,
@@ -68,13 +69,5 @@ impl VerletPhysics2D {
         for o in self.objects.iter_mut() {
             o.clear();
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
     }
 }
