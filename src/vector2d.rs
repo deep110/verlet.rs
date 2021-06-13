@@ -21,6 +21,11 @@ impl Vector2D {
     }
 
     #[inline]
+    pub fn new_with(p: &Vector2D) -> Vector2D {
+        Vector2D { x: p.x, y: p.y }
+    }
+
+    #[inline]
     pub fn set(&mut self, x: f32, y: f32) {
         self.x = x;
         self.y = y;
@@ -136,6 +141,17 @@ impl Div for Vector2D {
         Self {
             x: self.x / other.x,
             y: self.y / other.y,
+        }
+    }
+}
+
+impl Div<f32> for Vector2D {
+    type Output = Self;
+
+    fn div(self, s: f32) -> Self {
+        Self {
+            x: self.x / s,
+            y: self.y / s,
         }
     }
 }

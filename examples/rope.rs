@@ -6,7 +6,7 @@ use winit::event_loop::{ControlFlow, EventLoop};
 use winit::window::WindowBuilder;
 use winit_input_helper::WinitInputHelper;
 
-use verlet_rs::{behaviors, constraints, Spring2D, VerletObject2D, VerletPhysics2D};
+use verlet_rs::{behaviors, objects, Vector2D, VerletObject2D, VerletPhysics2D};
 
 const WIDTH: u32 = 512;
 const HEIGHT: u32 = 512;
@@ -76,32 +76,20 @@ pub fn main() -> Result<(), Error> {
 }
 
 fn init_rope(verlet_phy: &mut VerletPhysics2D) {
-    let gap = 10.0;
-    let num_particles = 20;
-
     let mut rope = VerletObject2D::new("rope");
 
-    for i in 0..num_particles {
-        let p = rope.create_particle(200. + i as f32 * gap, 10.);
-        if i == 0 {
-            let pin_c = constraints::PinConstraint2D::new(&p);
-            rope.add_constraint(pin_c);
-        }
-    }
-
-    // add spring connections
-    let mut xs: Vec<Spring2D> = Vec::with_capacity(num_particles);
-    let particles = rope.get_particles();
-    for i in 1..particles.len() {
-        let s = Spring2D::new(particles[i - 1], particles[i], 25., 0.5);
-        xs.push(s);
-    }
-    rope.add_springs(xs);
+    objects::create_line_from_endpoints(
+        &mut rope,
+        Vector2D::new(100., 100.), // start
+        Vector2D::new(250., 100.), // end
+        10,
+        0.5,
+    );
     verlet_phy.add_verlet_object(rope);
 }
 
 fn draw_rope(verlet_phy: &mut VerletPhysics2D, canvas: &mut Canvas, buffer: &mut [u8]) {
-    canvas.clear(&ada::color::BLACK, buffer);
+    canvas.clear(&ada::color::BLUE, buffer);
     let white = &ada::color::WHITE;
 
     for obj in verlet_phy.get_verlet_objects() {

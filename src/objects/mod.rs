@@ -1,3 +1,6 @@
+mod utils;
+
+use crate::Vector2D;
 use crate::{Particle2D, ParticleBehaviour2D, ParticleConstraint2D, ParticleKey, Spring2D};
 
 use slotmap::SlotMap;
@@ -25,10 +28,10 @@ impl VerletObject2D {
 
     // handle particle functions
 
-    pub fn create_particle(&mut self, x: f32, y: f32) -> ParticleKey {
+    pub fn create_particle(&mut self, position: &Vector2D) -> ParticleKey {
         return self
             .particles
-            .insert_with_key(|k| (Particle2D::new(k, x, y)));
+            .insert_with_key(|k| (Particle2D::new(k, position)));
     }
 
     pub fn remove_particle(&mut self, particle_id: ParticleKey) {
@@ -149,3 +152,5 @@ impl VerletObject2D {
         self.constraints.clear();
     }
 }
+
+pub use utils::create_line_from_endpoints;

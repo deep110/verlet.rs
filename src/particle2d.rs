@@ -15,11 +15,11 @@ pub struct Particle2D {
 
 impl Particle2D {
     #[inline]
-    pub(crate) fn new(id: ParticleKey, x: f32, y: f32) -> Particle2D {
+    pub(crate) fn new(id: ParticleKey, position: &Vector2D) -> Particle2D {
         Particle2D {
             id,
-            position: Vector2D::new(x, y),
-            last_position: Vector2D::new(x, y),
+            position: Vector2D::new_with(position),
+            last_position: Vector2D::new_with(position),
             force: Vector2D::zero(),
             weight: 1f32,
             inv_weight: 1f32,
