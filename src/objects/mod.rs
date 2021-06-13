@@ -153,4 +153,4 @@ impl VerletObject2D {
     }
 }
 
-pub use utils::create_line_from_endpoints;
+pub use utils::{create_line_from_endpoints, create_line_from_points};

@@ -29,7 +29,32 @@ pub fn create_line_from_endpoints(
     let mut xs: Vec<Spring2D> = Vec::with_capacity(num_particles);
     let particles = verlet_object.get_particles();
     for i in 1..particles.len() {
-        let s = Spring2D::new(particles[i - 1], particles[i], gap, stiffness);
+        let s = Spring2D::new(particles[i - 1], particles[i], stiffness, Some(gap));
+        xs.push(s);
+    }
+    verlet_object.add_springs(xs);
+}
+
+pub fn create_line_from_points(
+    verlet_object: &mut VerletObject2D,
+    points: &[Vector2D],
+    stiffness: f32,
+) {
+    let num_particles = points.len();
+
+    for i in 0..num_particles {
+        let p = verlet_object.create_particle(&points[i]);
+        if i == 0 {
+            let pin_c = PinConstraint2D::new(&p);
+            verlet_object.add_constraint(pin_c);
+        }
+    }
+
+    // add spring connections
+    let mut xs: Vec<Spring2D> = Vec::with_capacity(num_particles);
+    let particles = verlet_object.get_particles();
+    for i in 1..particles.len() {
+        let s = Spring2D::new(particles[i - 1], particles[i], stiffness, None);
         xs.push(s);
     }
     verlet_object.add_springs(xs);

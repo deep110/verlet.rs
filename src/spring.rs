@@ -12,14 +12,20 @@ impl Spring2D {
     pub fn new(
         particle_a: &Particle2D,
         particle_b: &Particle2D,
-        rest_length: f32,
         stiffness: f32,
+        rest_length: Option<f32>,
     ) -> Self {
+        let rs = match rest_length {
+            Some(n) => n,
+            None => {
+                (*particle_a.get_position() - *particle_b.get_position()).magnitude()
+            },
+        };
         Spring2D {
             particle_a_id: particle_a.get_id(),
             particle_b_id: particle_b.get_id(),
-            rest_length,
-            rest_length_sq: rest_length * rest_length,
+            rest_length: rs,
+            rest_length_sq: rs * rs,
             stiffness,
         }
     }
