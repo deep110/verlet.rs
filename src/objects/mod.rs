@@ -38,6 +38,11 @@ impl VerletObject2D {
         self.particles.remove(particle_id);
     }
 
+    #[inline(always)]
+    pub fn get_particle(&self, particle_id: ParticleKey) -> &Particle2D {
+        &self.particles[particle_id]
+    }
+
     pub fn get_particles(&self) -> Vec<&Particle2D> {
         self.particles.values().collect()
     }
@@ -67,9 +72,14 @@ impl VerletObject2D {
     ///
     /// Does not allow to add already added spring again. So at a time only
     /// a single connection can exist between two unique particles
-    pub fn add_spring(&mut self, spring: Spring2D) {
-        match self.get_spring(spring.get_particle_a_id(), spring.get_particle_b_id()) {
-            None => self.springs.push(spring),
+    pub fn add_spring(&mut self, mut spring: Spring2D) {
+        let a_id = spring.get_particle_a_id();
+        let b_id = spring.get_particle_b_id();
+        match self.get_spring(a_id, b_id) {
+            None => {
+                spring.init_internal(&self.particles[a_id], &self.particles[b_id]);
+                self.springs.push(spring)
+            }
             _ => (),
         }
     }
@@ -153,4 +163,4 @@ impl VerletObject2D {
     }
 }
 
-pub use utils::{create_line_from_endpoints, create_line_from_points};
+pub use utils::{create_line_from_endpoints, create_line_from_points, create_sheet};

@@ -10,23 +10,28 @@ pub struct Spring2D {
 
 impl Spring2D {
     pub fn new(
-        particle_a: &Particle2D,
-        particle_b: &Particle2D,
+        particle_a_id: &ParticleKey,
+        particle_b_id: &ParticleKey,
         stiffness: f32,
         rest_length: Option<f32>,
     ) -> Self {
         let rs = match rest_length {
             Some(n) => n,
-            None => {
-                (*particle_a.get_position() - *particle_b.get_position()).magnitude()
-            },
+            None => -1.,
         };
         Spring2D {
-            particle_a_id: particle_a.get_id(),
-            particle_b_id: particle_b.get_id(),
+            particle_a_id: *particle_a_id,
+            particle_b_id: *particle_b_id,
             rest_length: rs,
             rest_length_sq: rs * rs,
             stiffness,
+        }
+    }
+
+    pub(crate) fn init_internal(&mut self, a: &Particle2D, b: &Particle2D) {
+        if self.rest_length < 0. {
+            let rs = (*a.get_position() - *b.get_position()).magnitude();
+            self.set_rest_length(rs);
         }
     }
 
