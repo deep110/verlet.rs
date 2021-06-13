@@ -66,32 +66,43 @@ pub fn create_sheet(
     num_segments: u32,
     stiffness: f32,
 ) {
+    let np = num_segments as usize + 1;
     let stride_x = width / num_segments as f32;
     let stride_y = height / num_segments as f32;
 
-    let mut particle_ids =
-        Vec::<ParticleKey>::with_capacity(num_segments as usize * num_segments as usize);
+    let mut particle_ids = Vec::<ParticleKey>::with_capacity(np * np);
 
-    for j in 0..num_segments {
-        for i in 0..num_segments {
+    for j in 0..np {
+        for i in 0..np {
             let px = center.x + stride_x * i as f32 - width / 2. + stride_x / 2.;
             let py = center.y + stride_y * j as f32 - height / 2. + stride_y / 2.;
 
             let s = verlet_object.create_particle(&Vector2D::new(px, py));
-            if j == 0 && (i == 0 || i == num_segments - 1) {
+            if j == 0 && (i == 0 || i == np - 1) {
                 let pin_c = PinConstraint2D::new(&s);
                 verlet_object.add_constraint(pin_c);
             }
             particle_ids.push(s);
+
+            // add spring connections
+            if j > 0 {
+                let s1 = Spring2D::new(
+                    &particle_ids[(j - 1) * np + i],
+                    &particle_ids[j * np + i],
+                    stiffness,
+                    Some(stride_y),
+                );
+                verlet_object.add_spring(s1);
+            }
+            if i > 0 {
+                let s2 = Spring2D::new(
+                    &particle_ids[j * np + i - 1],
+                    &particle_ids[j * np + i],
+                    stiffness,
+                    Some(stride_x),
+                );
+                verlet_object.add_spring(s2);
+            }
         }
     }
-
-    // add spring connections
-    // let mut xs: Vec<Spring2D> = Vec::with_capacity(num_particles);
-    // let particles = verlet_object.get_particles();
-    // for i in 1..particles.len() {
-    //     let s = Spring2D::new(particles[i - 1], particles[i], stiffness,
-    // None);     xs.push(s);
-    // }
-    // verlet_object.add_springs(xs);
 }
