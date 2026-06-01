@@ -14,3 +14,7 @@ Cargo.lock
 
 # Coverage reports
 *.html
+
+# OS Specific
+
+**/.DS_Store

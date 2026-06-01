@@ -110,6 +110,10 @@ impl VerletObject2D {
         &self.springs
     }
 
+    // pub fn get_spring_ends(&self, s: &Spring2D) -> (&Vector2D, &Vector2D) {
+    //     self
+    // }
+
     #[inline(always)]
     pub(crate) fn update_springs(&mut self, num_iterations: u32) {
         for _ in 0..num_iterations {

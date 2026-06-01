@@ -88,17 +88,22 @@ fn init_rope(verlet_phy: &mut VerletPhysics2D) {
     verlet_phy.add_verlet_object(rope);
 }
 
-fn draw_rope(verlet_phy: &mut VerletPhysics2D, canvas: &mut Canvas, buffer: &mut [u8]) {
+fn draw_rope(verlet_phy: &VerletPhysics2D, canvas: &mut Canvas, buffer: &mut [u8]) {
     canvas.clear(&ada::color::BLUE, buffer);
     let white = &ada::color::WHITE;
+    let gray = ada::color!(211, 211, 211);
 
     for obj in verlet_phy.get_verlet_objects() {
-        let particles = obj.get_particles();
-
-        for particle in particles.iter() {
+        // render particles
+        for particle in obj.get_particles().iter() {
             let pp = particle.get_position();
 
-            shape::draw_ellipse2d_filled(pp.x as i32, pp.y as i32, 6, 6, canvas, white, buffer);
+            shape::draw_ellipse2d_filled(pp.x as i32, pp.y as i32, 2, 2, canvas, white, buffer);
+        }
+
+        // render springs
+        for spring in obj.get_springs().iter() {
+            
         }
     }
 }

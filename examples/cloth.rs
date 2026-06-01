@@ -99,7 +99,7 @@ fn draw_rope(verlet_phy: &mut VerletPhysics2D, canvas: &mut Canvas, buffer: &mut
         for particle in particles.iter() {
             let pp = particle.get_position();
 
-            shape::draw_ellipse2d_filled(pp.x as i32, pp.y as i32, 6, 6, canvas, white, buffer);
+            shape::draw_ellipse2d_filled(pp.x as i32, pp.y as i32, 2, 2, canvas, white, buffer);
         }
     }
 }

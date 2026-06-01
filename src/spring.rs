@@ -28,6 +28,7 @@ impl Spring2D {
         }
     }
 
+    #[inline(always)]
     pub(crate) fn init_internal(&mut self, a: &Particle2D, b: &Particle2D) {
         if self.rest_length < 0. {
             let rs = (*a.get_position() - *b.get_position()).magnitude();
